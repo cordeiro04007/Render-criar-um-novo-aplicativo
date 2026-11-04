@@ -1,11 +1,13 @@
-import pandas as pd
-import scipy.stats
-import streamlit as st
-import time
-
 import streamlit as st
 import numpy as np
 import pandas as pd
+
+# Inicialização das variáveis
+if 'experiment_no' not in st.session_state:
+    st.session_state['experiment_no'] = 0
+
+if 'df_experiment_results' not in st.session_state:
+    st.session_state['df_experiment_results'] = pd.DataFrame()
 
 st.title('Simulação de lançamento de moedas')
 
@@ -17,52 +19,33 @@ number_of_trials = st.slider(
 def toss_coin(number_of_trials):
     results = np.random.choice([0, 1], size=number_of_trials)
 
-    means = np.cumsum(results) / np.arange(1, number_of_trials + 1)
+    mean = np.cumsum(results) / np.arange(1, number_of_trials + 1)
 
-    return means
+    return mean
 
 mean = toss_coin(number_of_trials)
 
 df = pd.DataFrame({
-    'Média acumulada': mean
+    'Média acumulada': mean,
+    'Probabilidade teórica': 0.5
 })
 
 st.line_chart(df)
 
-def toss_coin(n):
-
-    trial_outcomes = scipy.stats.bernoulli.rvs(p=0.5, size=n)
-
-    mean = None
-    outcome_no = 0
-    outcome_1_count = 0
-
-    for r in trial_outcomes:
-        outcome_no +=1
-        if r == 1:
-            outcome_1_count += 1
-        mean = outcome_1_count / outcome_no
-        chart.add_rows([mean])
-        time.sleep(0.05)
-
-    return mean
-
-number_of_trials = st.slider('Número de tentativas?', 1, 1000, 10)
-start_button = st.button('Executar')
-
-if start_button:
-    st.write(f'Executando o experimento de {number_of_trials} tentativas.')
+if st.button('Executar experimento'):
     st.session_state['experiment_no'] += 1
-    mean = toss_coin(number_of_trials)
-    st.session_state['df_experiment_results'] = pd.concat([
-        st.session_state['df_experiment_results'],
-        pd.DataFrame(data=[[st.session_state['experiment_no'],
-                            number_of_trials,
-                            mean]],
-                     columns=['no', 'iterations', 'mean'])
+
+    st.session_state['df_experiment_results'] = pd.concat(
+        [
+            st.session_state['df_experiment_results'],
+            pd.DataFrame({
+                'Experimento': [st.session_state['experiment_no']],
+                'Média final': [mean[-1]]
+            })
         ],
-        axis=0)
-    st.session_state['df_experiment_results'] = \
-        st.session_state['df_experiment_results'].reset_index(drop=True)
+        ignore_index=True
+    )
+
+st.subheader('Resultados dos experimentos')
 
 st.write(st.session_state['df_experiment_results'])
