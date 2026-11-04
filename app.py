@@ -3,16 +3,32 @@ import scipy.stats
 import streamlit as st
 import time
 
-# estas são variáveis persistentes preservadas à medida que o Streamlin executa novamente esse script
-if 'experiment_no' not in st.session_state:
-    st.session_state['experiment_no'] = 0
+estas são variáveis persistentes preservadas à medida que o Streamlin executa novamente esse script
+import streamlit as st
+import numpy as np
+import pandas as pd
 
-if 'df_experiment_results' not in st.session_state:
-    st.session_state['df_experiment_results'] = pd.DataFrame(columns=['no', 'iterations', 'mean'])
+st.title('Simulação de lançamento de moedas')
 
-st.header('Jogando uma moeda')
+number_of_trials = st.slider(
+    'Número de lançamentos:',
+    10, 10000, 100
+)
 
-chart = st.line_chart([0.5])
+def toss_coin(number_of_trials):
+    results = np.random.choice([0, 1], size=number_of_trials)
+
+    means = np.cumsum(results) / np.arange(1, number_of_trials + 1)
+
+    return means
+
+mean = toss_coin(number_of_trials)
+
+df = pd.DataFrame({
+    'Média acumulada': mean
+})
+
+st.line_chart(df)
 
 def toss_coin(n):
 
