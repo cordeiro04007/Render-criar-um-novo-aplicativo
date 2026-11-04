@@ -3,7 +3,6 @@ import scipy.stats
 import streamlit as st
 import time
 
-estas são variáveis persistentes preservadas à medida que o Streamlin executa novamente esse script
 import streamlit as st
 import numpy as np
 import pandas as pd
